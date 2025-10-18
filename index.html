@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PToken DApp - Polygon Network</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- هدر -->
+        <header class="mobile-header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>PToken</h1>
+                        <span class="logo-subtitle">Polygon Network</span>
+                    </div>
+                </div>
+                <div class="network-status">
+                    <div class="status-indicator">
+                        <div class="pulse-dot"></div>
+                        <span>آنلاین</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- محتوای اصلی -->
+        <main class="mobile-main">
+            <!-- تب کیف پول -->
+            <div id="wallet-tab" class="tab-content active">
+                <div class="mobile-section">
+                    <div class="hero-section">
+                        <div class="hero-icon">
+                            <div class="floating-wallet">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                        </div>
+                        <h2 class="hero-title">خوش آمدید</h2>
+                        <p class="hero-subtitle">برای شروع، کیف پول خود را متصل کنید</p>
+                    </div>
+
+                    <div class="action-card">
+                        <button id="connect-btn" onclick="connectWallet()" class="btn-connect animated-btn">
+                            <i class="fas fa-plug"></i>
+                            اتصال به کیف پول
+                        </button>
+
+                        <button id="disconnect-btn" onclick="disconnectWallet()" class="btn-disconnect" style="display: none;">
+                            <i class="fas fa-power-off"></i>
+                            قطع اتصال
+                        </button>
+                    </div>
+
+                    <div id="account" class="account-display" style="display: none;">
+                        <div class="account-card">
+                            <div class="account-header">
+                                <i class="fas fa-check-circle"></i>
+                                <span>اتصال موفق</span>
+                            </div>
+                            <div class="account-address"></div>
+                            <div class="account-balance">
+                                <span class="balance-label">موجودی:</span>
+                                <span class="balance-value wallet-balance">0 پالیگان</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تب اطلاعات کاربر -->
+            <div id="user-tab" class="tab-content">
+                <div class="mobile-section">
+                    <div class="section-header">
+                        <h2>پروفایل کاربری</h2>
+                        <div class="user-badge">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+
+                    <!-- حالت ثبت‌نام نشده -->
+                    <div id="unregistered-view" class="registration-card">
+                        <div class="card-header">
+                            <h3>ثبت‌نام جدید</h3>
+                            <div class="price-tag">350 پالیگان</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="input-label">
+                                <i class="fas fa-user-friends"></i>
+                                شناسه عددی کاربر آپلاین
+                            </label>
+                            <input id="upline-address" type="number" placeholder="مثال: 1234" class="modern-input" min="1">
+                        </div>
+
+                        <div class="position-selector">
+                            <div class="selector-title">موقعیت قرارگیری در شبکه</div>
+                            <div class="position-options">
+                                <label class="position-card">
+                                    <input type="radio" name="place" value="left" checked>
+                                    <div class="card-content">
+                                        <div class="position-icon left">
+                                            <i class="fas fa-arrow-left"></i>
+                                        </div>
+                                        <span>سمت چپ</span>
+                                    </div>
+                                </label>
+                                <label class="position-card">
+                                    <input type="radio" name="place" value="right">
+                                    <div class="card-content">
+                                        <div class="position-icon right">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                        <span>سمت راست</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button onclick="register()" class="btn-register">
+                            <i class="fas fa-user-plus"></i>
+                            تکمیل ثبت‌نام
+                        </button>
+                    </div>
+
+                    <!-- حالت ثبت‌نام شده -->
+                    <div id="registered-view" class="user-info-card" style="display: none;">
+                        <div class="user-id-display">
+                            <div class="user-id-label">شناسه کاربری شما:</div>
+                            <div class="user-id-value" id="user-id">-</div>
+                        </div>
+                        
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">شناسه آپلاین</div>
+                                    <div class="info-value" id="user-upline">-</div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                </div>
+                                <div class="info-content">
+                                    <div class="info-label">قیمت ورود</div>
+                                    <div class="info-value" id="entry-price">0 پالیگان</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- آمار تیم -->
+                        <div class="stats-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-users"></i>
+                                آمار تیم شما
+                            </h4>
+                            
+                            <div class="team-stats-grid">
+                                <div class="team-stat-card left-team">
+                                    <div class="team-icon">
+                                        <i class="fas fa-arrow-left"></i>
+                                    </div>
+                                    <div class="team-info">
+                                        <div class="team-label">تیم چپ</div>
+                                        <div class="team-count" id="team-stats-left">0</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="team-stat-card right-team">
+                                    <div class="team-icon">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </div>
+                                    <div class="team-info">
+                                        <div class="team-label">تیم راست</div>
+                                        <div class="team-count" id="team-stats-right">0</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="team-stat-card total-team">
+                                    <div class="team-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="team-info">
+                                        <div class="team-label">کل تیم</div>
+                                        <div class="team-count" id="team-stats-total">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- تعادل شبکه -->
+                        <div class="balance-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-balance-scale"></i>
+                                تعادل شبکه
+                            </h4>
+                            
+                            <div class="balance-display">
+                                <div class="balance-item">
+                                    <div class="balance-title">
+                                        <i class="fas fa-arrow-left"></i>
+                                        <span class="balance-name">ولت های تیم چپ</span>
+                                    </div>
+                                    <div class="balance-count" id="left-balance">0</div>
+                                </div>
+                                
+                                <div class="balance-item">
+                                    <div class="balance-title">
+                                        <i class="fas fa-arrow-right"></i>
+                                        <span class="balance-name">ولت های تیم راست</span>
+                                    </div>
+                                    <div class="balance-count" id="right-balance">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تب توکن P -->
+            <div id="token-p-tab" class="tab-content">
+                <div class="mobile-section">
+                    <div class="section-header">
+                        <h2>توکن P</h2>
+                        <div class="user-badge">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                    </div>
+
+                    <!-- نمایش قیمت توکن -->
+                    <div class="token-price-section">
+                        <div class="token-price-card">
+                            <div class="price-icon">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <div class="price-info">
+                                <div class="price-label">قیمت فعلی هر توکن P</div>
+                                <div class="price-amount" id="p-token-price">0</div>
+                                <div class="price-currency">پالیگان</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- نمایش موجودی توکن P و پالیگان -->
+                    <div class="balance-cards-grid">
+                        <div class="balance-card token">
+                            <div class="balance-icon">
+                                <i class="fas fa-gem"></i>
+                            </div>
+                            <div class="balance-info">
+                                <div class="balance-label">موجودی توکن P</div>
+                                <div class="balance-amount" id="p-token-balance">0</div>
+                                <div class="balance-value" id="p-token-value">≈ 0 پالیگان</div>
+                            </div>
+                        </div>
+                        
+                        <div class="balance-card polygon">
+                            <div class="balance-icon">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            <div class="balance-info">
+                                <div class="balance-label">موجودی پالیگان</div>
+                                <div class="balance-amount wallet-balance">0</div>
+                                <div class="balance-value">در کیف پول</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اقدامات توکن P -->
+                    <div class="token-actions">
+                        <!-- بخش خرید توکن P -->
+                        <div class="token-action-card">
+                            <div class="action-header">
+                                <h4>خرید توکن P</h4>
+                                <div class="action-balance">
+                                    <i class="fas fa-coins"></i>
+                                    <span class="wallet-balance">0 پالیگان</span>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    مقدار پالیگان برای خرید
+                                </label>
+                                <input type="number" id="buy-amount" class="modern-input" placeholder="0.00" step="0.001" min="0.001">
+                            </div>
+                            
+                            <div class="calculation-result">
+                                <div class="result-item">
+                                    <span>دریافت می‌کنید:</span>
+                                    <strong id="tokens-received">0 توکن P</strong>
+                                </div>
+                            </div>
+                            
+                            <button onclick="buyPTokens()" class="btn-token-action primary">
+                                <i class="fas fa-shopping-cart"></i>
+                                خرید توکن P
+                            </button>
+                        </div>
+
+                        <!-- بخش فروش توکن P -->
+                        <div class="token-action-card">
+                            <div class="action-header">
+                                <h4>فروش توکن P</h4>
+                                <div class="action-balance">
+                                    <i class="fas fa-gem"></i>
+                                    <span id="available-tokens-sell">0 توکن P</span>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <label class="input-label">
+                                    <i class="fas fa-gem"></i>
+                                    مقدار توکن P برای فروش
+                                </label>
+                                <input type="number" id="sell-amount" class="modern-input" placeholder="0.00" step="0.01" min="0.01">
+                            </div>
+                            
+                            <div class="calculation-result">
+                                <div class="result-item">
+                                    <span>دریافت می‌کنید:</span>
+                                    <strong id="matic-received">0 پالیگان</strong>
+                                </div>
+                            </div>
+                            
+                            <button onclick="sellPTokens()" class="btn-token-action secondary">
+                                <i class="fas fa-money-bill-wave"></i>
+                                فروش توکن P
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تب ماینر -->
+            <div id="miner-tab" class="tab-content">
+                <div class="mobile-section">
+                    <div class="miner-header">
+                        <h2>سیستم ماینر</h2>
+                        <div class="miner-global-status" id="miner-global-status">
+                            <div class="status-indicator"></div>
+                            <span>در حال بارگذاری...</span>
+                        </div>
+                    </div>
+
+                    <div class="miner-container">
+                        <!-- کارت وضعیت ماینر -->
+                        <div class="miner-status-card">
+                            <div class="miner-icon">
+                                <i class="fas fa-hard-hat"></i>
+                            </div>
+                            <div class="miner-status-label">وضعیت ماینر شما</div>
+                            <div class="miner-status-value" id="miner-status">در حال بارگذاری...</div>
+                        </div>
+
+                        <!-- آمار دقیق ماینر -->
+                        <div class="miner-stats">
+                            <div class="miner-stat-card">
+                                <div class="miner-stat-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="miner-stat-label">پاداش‌های کل ماینر</div>
+                                <div class="miner-stat-value" id="miner-total-rewards">0 پالیگان</div>
+                            </div>
+
+                            <div class="miner-stat-card">
+                                <div class="miner-stat-icon">
+                                    <i class="fas fa-wallet"></i>
+                                </div>
+                                <div class="miner-stat-label">موجودی برای خرید</div>
+                                <div class="miner-stat-value" id="miner-pool-balance">0 پالیگان</div>
+                            </div>
+                        </div>
+
+                        <!-- تایمر خرید ماینر -->
+                        <div class="miner-timer-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-clock"></i>
+                                زمان باقی‌مانده تا خرید بعدی
+                            </h4>
+                            <div class="timer-container">
+                                <div class="timer-display" id="miner-buy-timer">--:--:--</div>
+                                <div class="timer-note">هر 24 ساعت یکبار امکان خرید وجود دارد</div>
+                            </div>
+                        </div>
+
+                        <!-- اقدامات ماینر -->
+                        <div class="miner-actions">
+                            <!-- خرید توکن ماینر -->
+                            <div class="miner-action-card">
+                                <div class="action-header">
+                                    <div class="action-title">خرید توکن ماینر</div>
+                                    <div class="action-balance">
+                                        <i class="fas fa-coins"></i>
+                                        <span id="available-miner-balance">0 پالیگان</span>
+                                    </div>
+                                </div>
+                                <div class="action-description">
+                                    <strong>موجودی قابل استفاده برای خرید:</strong> از موجودی استخر ماینر استفاده می‌شود
+                                </div>
+                                <button onclick="buyMinerTokens()" class="btn-miner-action" id="buy-miner-btn" disabled>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    خرید توکن ماینر
+                                </button>
+                            </div>
+
+                            <!-- توزیع توکن ماینر -->
+                            <div class="miner-action-card">
+                                <div class="action-header">
+                                    <div class="action-title">توزیع توکن ماینر</div>
+                                </div>
+                                <div class="distribution-status">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span id="miner-distribution-status">فقط در تاریخ 5 هر ماه فعال می‌شود</span>
+                                </div>
+                                <button onclick="distributeMinerTokens()" class="btn-miner-action secondary" id="distribute-miner-btn">
+                                    <i class="fas fa-share-alt"></i>
+                                    توزیع توکن ماینر
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تب برداشت -->
+            <div id="withdraw-tab" class="tab-content">
+                <div class="mobile-section">
+                    <div class="section-header">
+                        <h2>برداشت از استخرها</h2>
+                        <div class="user-badge">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                    </div>
+
+                    <div class="withdraw-container">
+                        <!-- تایمر شمارش معکوس -->
+                        <div class="timer-container">
+                            <div class="timer-label">زمان باقی‌مانده تا برداشت بعدی</div>
+                            <div class="timer-display" id="countdown-timer">--:--:--</div>
+                            <div class="countdown-note">هر 6 ساعت یکبار قابل برداشت است</div>
+                        </div>
+
+                        <!-- کارت‌های برداشت -->
+                        <div class="withdraw-cards">
+                            <!-- استخر پاداش توسعه -->
+                            <div class="withdraw-card">
+                                <div class="withdraw-card-header">
+                                    <div class="withdraw-card-icon">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div class="withdraw-card-title">استخر پاداش توسعه</div>
+                                </div>
+                                
+                                <div class="pool-stats">
+                                    <div class="pool-stat">
+                                        <div class="pool-stat-icon">
+                                            <i class="fas fa-coins"></i>
+                                        </div>
+                                        <div class="pool-stat-label">پالیگان موجود</div>
+                                        <div class="pool-stat-value" id="pool-balance">0</div>
+                                    </div>
+                                    
+                                    <div class="pool-stat">
+                                        <div class="pool-stat-icon">
+                                            <i class="fas fa-users"></i>
+                                        </div>
+                                        <div class="pool-stat-label">تعداد ثبت‌نام</div>
+                                        <div class="pool-stat-value" id="pool-registrations">0</div>
+                                    </div>
+
+                                    <div class="pool-stat">
+                                        <div class="pool-stat-icon">
+                                            <i class="fas fa-balance-scale"></i>
+                                        </div>
+                                        <div class="pool-stat-label">تعادل‌های شما</div>
+                                        <div class="pool-stat-value" id="pool-balance-count">0</div>
+                                    </div>
+                                </div>
+
+                                <div class="withdraw-card-content">
+                                    <div class="amount-display">
+                                        <span class="amount" id="pool-amount">0</span>
+                                        <span class="currency">پالیگان</span>
+                                    </div>
+                                    <button onclick="withdrawPool()" class="btn-withdraw" id="pool-withdraw-btn">
+                                        <i class="fas fa-download"></i>
+                                        برداشت پاداش توسعه
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- استخر پاداش ویژه -->
+                            <div class="withdraw-card">
+                                <div class="withdraw-card-header">
+                                    <div class="withdraw-card-icon">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <div class="withdraw-card-title">استخر پاداش ویژه</div>
+                                </div>
+                                
+                                <div class="pool-stats">
+                                    <div class="pool-stat">
+                                        <div class="pool-stat-icon">
+                                            <i class="fas fa-coins"></i>
+                                        </div>
+                                        <div class="pool-stat-label">پالیگان موجود</div>
+                                        <div class="pool-stat-value" id="special-pool-balance">0</div>
+                                    </div>
+                                    
+                                    <div class="pool-stat">
+                                        <div class="pool-stat-icon">
+                                            <i class="fas fa-trophy"></i>
+                                        </div>
+                                        <div class="pool-stat-label">تعداد سقف‌ها</div>
+                                        <div class="pool-stat-value" id="special-pool-count">0</div>
+                                    </div>
+
+                                    <div class="pool-stat">
+                                        <div class="pool-stat-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="pool-stat-label">امتیازهای ویژه شما</div>
+                                        <div class="pool-stat-value" id="user-special-balance">0</div>
+                                    </div>
+                                </div>
+
+                                <div class="withdraw-card-content">
+                                    <div class="amount-display">
+                                        <span class="amount" id="special-amount">0</span>
+                                        <span class="currency">پالیگان</span>
+                                    </div>
+                                    <button onclick="withdrawSpecials()" class="btn-withdraw special" id="special-withdraw-btn">
+                                        <i class="fas fa-download"></i>
+                                        برداشت ویژه
+                                    </button>
+                                </div>
+                                
+                                <!-- وضعیت استخر ویژه -->
+                                <div class="distribution-status" id="special-pool-status" style="margin-top: 15px; display: none;">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>در حال بررسی وضعیت استخر...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ناوبری پایین -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('wallet')">
+                <div class="nav-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <span class="nav-label">کیف پول</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('user')">
+                <div class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="nav-label">پروفایل</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('token-p')">
+                <div class="nav-icon">
+                    <i class="fas fa-gem"></i>
+                </div>
+                <span class="nav-label">توکن P</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('miner')">
+                <div class="nav-icon">
+                    <i class="fas fa-hard-hat"></i>
+                </div>
+                <span class="nav-label">ماینر</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('withdraw')">
+                <div class="nav-icon">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <span class="nav-label">برداشت</span>
+            </div>
+        </nav>
+    </div>
+
+    <div id="message" class="message-toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
